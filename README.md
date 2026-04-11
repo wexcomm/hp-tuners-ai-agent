@@ -231,7 +231,7 @@ MIT License - See [LICENSE](LICENSE) for details.
 
 ## 📞 Support
 
-- GitHub Issues: [Report bugs/request features](https://github.com/YOUR_USERNAME/hp-tuners-ai-agent/issues)
+- GitHub Issues: [Report bugs/request features](https://github.com/wexcomm/hp-tuners-ai-agent/issues)
 - HP Tuners Forums: [www.hptuners.com/forums](https://www.hptuners.com/forums)
 - Impala Forums: [www.impalaforums.com](https://www.impalaforums.com)
 

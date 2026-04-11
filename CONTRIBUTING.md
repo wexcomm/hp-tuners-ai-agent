@@ -43,7 +43,7 @@ Thank you for your interest in contributing! This document provides guidelines f
 
 ```bash
 # Clone your fork
-git clone https://github.com/YOUR_USERNAME/hp-tuners-ai-agent.git
+git clone https://github.com/wexcomm/hp-tuners-ai-agent.git
 cd hp-tuners-ai-agent
 
 # Create virtual environment
