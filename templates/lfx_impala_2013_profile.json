@@ -1,0 +1,285 @@
+{
+  "vehicle_profile": {
+    "name": "2013 Chevrolet Impala LFX",
+    "engine": {
+      "code": "LFX",
+      "type": "3.6L V6 DOHC VVT",
+      "displacement": 3.6,
+      "cylinders": 6,
+      "bore": 94.0,
+      "stroke": 85.6,
+      "compression_ratio": 12.0,
+      "fuel_system": "Direct Injection (GDI)",
+      "fuel_pressure_idle_mpa": 5.0,
+      "fuel_pressure_wot_mpa": 12.0,
+      "redline_rpm": 7000,
+      "fuel_cut_rpm": 7200,
+      "max_torque_nm": 358,
+      "max_torque_rpm": 2800,
+      "max_hp": 305,
+      "max_hp_rpm": 6800,
+      "vvt_system": "Dual VVT (intake and exhaust)",
+      "vvt_range_degrees": 50
+    },
+    "transmission": {
+      "type": "6T70 6-speed automatic",
+      "gears": 6,
+      "tcu": "integrated",
+      "converter_lockup_gears": [2, 3, 4, 5, 6],
+      "final_drive": 2.77,
+      "gear_ratios": {
+        "1": 4.48,
+        "2": 2.27,
+        "3": 1.46,
+        "4": 1.00,
+        "5": 0.75,
+        "6": 0.62
+      }
+    },
+    "ecu": {
+      "type": "E39",
+      "os_id": "12653988",
+      "calibration_id": "12653989",
+      "fuel_type": "E10 regular (87 octane), E10 premium (93 recommended)",
+      "stock_timing_peak": 28,
+      "stock_rev_limiter": 6800,
+      "stock_speed_limiter": 210
+    },
+    "known_issues": [
+      "Carbon buildup on intake valves (direct injection, no fuel wash)",
+      "Timing chain tensioner wear (listen for rattle on cold start)",
+      "Oil consumption if not maintained (check PCV valve)",
+      "High pressure fuel pump (HPFP) can fail, $800+ part",
+      "VVT solenoid screens can clog"
+    ],
+    "tuning_limitations": [
+      "High compression (12:1) limits boost without forged internals",
+      "Direct injection fuel system has hard limits on pump capacity",
+      "Stock pistons are cast, not forged - detonation risk",
+      "Factory timing already aggressive on 87 octane",
+      "Transmission torque capacity ~350 lb-ft limit"
+    ]
+  },
+  "stock_tables": {
+    "fuel_pressure": {
+      "idle_mpa": 5.0,
+      "part_throttle_mpa": 8.0,
+      "wot_mpa": 12.0,
+      "max_system_mpa": 15.0,
+      "fuel_pump_duty_max": 85
+    },
+    "spark_advance_stock": {
+      "idle": [12, 14, 16],
+      "low_load": [24, 26, 28, 30],
+      "mid_load": [22, 26, 28, 28, 26],
+      "wot_87_octane": [18, 20, 22, 22, 20, 18],
+      "wot_93_octane": [22, 24, 26, 26, 24, 22]
+    },
+    "fuel_mass_stock_mg": {
+      "idle": [18, 20, 22],
+      "cruise": [35, 40, 45, 50],
+      "wot": [85, 95, 105, 115, 120, 110]
+    },
+    "maf_scaling_stock": {
+      "voltage_flow": [
+        [0.0, 0],
+        [1.0, 15],
+        [2.0, 42],
+        [3.0, 85],
+        [4.0, 145],
+        [4.5, 195],
+        [5.0, 240]
+      ]
+    },
+    "vvt_tables": {
+      "intake_advance_idle": 5,
+      "intake_advance_wot": 35,
+      "exhaust_advance_idle": -5,
+      "exhaust_advance_wot": 25,
+      "overlap_at_idle": 10,
+      "overlap_at_high_rpm": 45
+    },
+    "trans_shift_stock": {
+      "normal_mode": {
+        "1_2": 6000,
+        "2_3": 5800,
+        "3_4": 5600,
+        "4_5": 5400,
+        "5_6": 5200
+      },
+      "sport_mode": {
+        "1_2": 6500,
+        "2_3": 6400,
+        "3_4": 6200,
+        "4_5": 6000,
+        "5_6": 5800
+      },
+      "manual_mode": {
+        "1_2": 6800,
+        "2_3": 6800,
+        "3_4": 6800,
+        "4_5": 6800,
+        "5_6": 6800
+      }
+    }
+  },
+  "lfx_specific_pids": [
+    {
+      "name": "HPFP_Pressure",
+      "description": "High Pressure Fuel Pump pressure (MPa)",
+      "critical": true,
+      "normal_range": "5-12 MPa",
+      "warning_threshold": 4.5,
+      "critical_threshold": 4.0,
+      "notes": "Direct injection runs very high pressure. Low pressure = weak spray pattern, misfires"
+    },
+    {
+      "name": "LPFP_Pressure",
+      "description": "Low Pressure Fuel Pump (tank pump) pressure (psi)",
+      "critical": true,
+      "normal_range": "55-60 psi",
+      "warning_threshold": 50,
+      "critical_threshold": 45,
+      "notes": "Low pressure strains HPFP, can cause fuel starvation at high load"
+    },
+    {
+      "name": "VVT_Intake_Actual",
+      "description": "Intake cam actual position (degrees)",
+      "critical": false,
+      "normal_range": "0-50 degrees",
+      "warning_threshold": null,
+      "critical_threshold": null,
+      "notes": "Compare to commanded. Large deviation = VVT solenoid or chain issue"
+    },
+    {
+      "name": "VVT_Exhaust_Actual",
+      "description": "Exhaust cam actual position (degrees)",
+      "critical": false,
+      "normal_range": "-5 to 25 degrees",
+      "warning_threshold": null,
+      "critical_threshold": null,
+      "notes": "Exhaust cam typically retarded (negative values) at idle"
+    },
+    {
+      "name": "Fuel_Injector_Duty",
+      "description": "Fuel injector duty cycle (%)",
+      "critical": true,
+      "normal_range": "2-80%",
+      "warning_threshold": 85,
+      "critical_threshold": 90,
+      "notes": "Above 85% at WOT = injectors maxed out. Need larger injectors or reduce power"
+    },
+    {
+      "name": "Cylinder_Head_Temp",
+      "description": "Cylinder head temperature (C)",
+      "critical": true,
+      "normal_range": "90-110 C",
+      "warning_threshold": 115,
+      "critical_threshold": 120,
+      "notes": "High compression runs hot. Watch for head temp vs coolant temp delta"
+    },
+    {
+      "name": "Fuel_Trim_Cell",
+      "description": "Current fuel trim cell/zone",
+      "critical": false,
+      "normal_range": "0-21",
+      "warning_threshold": null,
+      "critical_threshold": null,
+      "notes": "GM uses fuel trim cells. Know which cell you're in for accurate tuning"
+    },
+    {
+      "name": "Knock_Retard_Cyl1",
+      "description": "Knock retard for cylinder 1 (degrees)",
+      "critical": true,
+      "normal_range": "0",
+      "warning_threshold": 2,
+      "critical_threshold": 4,
+      "notes": "LFX prone to knock on 87 octane. Monitor all 6 cylinders"
+    }
+  ],
+  "tuning_recommendations": {
+    "stage_1_bolt_ons": {
+      "mods": ["Cold air intake", "Cat-back exhaust", "Throttle body spacer"],
+      "power_gain": "10-15 hp",
+      "fuel_changes": {
+        "maf_scaling": "+8-12%",
+        "wot_fuel": "+3-5%",
+        "pe_afr_target": "12.8:1",
+        "injector_duty_limit": "Watch for >85% at high RPM"
+      },
+      "spark_changes": {
+        "87_octane": "Stock timing, maybe +1-2 if no knock",
+        "93_octane": "+3-4 degrees WOT, 0-1 part throttle",
+        "warning": "12:1 compression is very sensitive to knock. Use 93 octane for any timing advance"
+      },
+      "vvt_changes": {
+        "intake": "+5 degrees at WOT for more power",
+        "exhaust": "Reduce overlap slightly for better idle quality",
+        "note": "Small VVT changes have big effect on torque curve"
+      },
+      "trans_changes": {
+        "shift_points": "+400 RPM all gears",
+        "line_pressure": "90 psi (from 85)",
+        "torque_management": "95% (from 100)",
+        "warning": "6T70 torque limit is ~350 lb-ft. Don't exceed with tune"
+      },
+      "safety_limits": {
+        "rev_limiter": "Keep stock 6800",
+        "speed_limiter": "Remove to 255",
+        "fuel_cut": "7000 rpm"
+      },
+      "special_considerations": [
+        "Use 93 octane minimum for any timing advance",
+        "Monitor fuel trims in cell 14-16 (light cruise) - these are leanest",
+        "Log HPFP pressure at WOT - must maintain 12 MPa minimum",
+        "Watch injector duty at 6000+ RPM",
+        "High compression means you will hear more 'ping' on 87 octane than V8s"
+      ]
+    },
+    "stage_2_cams": {
+      "mods": ["Stage 1 +", "Performance cam (GM performance or aftermarket)", "Valve springs", "Ported intake"],
+      "power_gain": "30-50 hp",
+      "critical_changes": {
+        "vvt": "Recalibrate entire VVT tables - new cam profile",
+        "idle_airflow": "+30-50% due to increased overlap",
+        "maf": "Rescale for new VE curve",
+        "fuel": "Check injector duty - may need injectors",
+        "spark": "Retard timing at low RPM (overlap causes reversion)"
+      },
+      "warnings": [
+        "LFX cams are expensive ($1000+ for good ones)",
+        "More overlap hurts fuel economy and idle quality",
+        "May fail emissions due to overlap",
+        "Consider if worth vs saving for V8 swap"
+      ]
+    },
+    "forced_induction_warning": {
+      "feasibility": "Not recommended on stock internals",
+      "reasons": [
+        "12:1 compression too high for boost without forged pistons",
+        "Stock cast pistons will fail with detonation",
+        "Direct injection fuel system near limit stock",
+        "6T70 trans limited to ~350 lb-ft",
+        "Crankshaft not as robust as LS/LT V8s"
+      ],
+      "if_pursued": {
+        "compression": "Must lower to 9:1 or less (engine build)",
+        "fuel_system": "Upgrade HPFP and injectors ($2000+)",
+        "transmission": "Build 6T70 or swap to manual",
+        "boost_limit": "6-8 psi max on stock pistons (risky)",
+        "octane": "E85 recommended for safety margin"
+      }
+    },
+    "daily_optimization": {
+      "goal": "Improve MPG, smoothness, throttle response",
+      "changes": {
+        "torque_converter": "Lock up earlier in 2nd gear",
+        "vvt": "Advance intake more at cruise for better MPG",
+        "fuel": "Lean out light cruise cells (watch LTFT)",
+        "spark": "Advance at cruise if no knock (87 octane)",
+        "shift": "Lower shift points 200 RPM for comfort"
+      },
+      "mpg_gain": "1-2 MPG if tuned carefully"
+    }
+  }
+}
