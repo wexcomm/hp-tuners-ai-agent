@@ -44,7 +44,7 @@ class HermesHPIntegration:
             agent_id: Unique ID for this bridge agent
         """
         self.agent_id = agent_id
-        self.hp_agent_id = "hp_tuners_ai_agent_agent"
+        self.hp_agent_id = None  # Will be discovered
         self.agent: Optional[Agent] = None
         self._connected = False
         
@@ -68,15 +68,22 @@ class HermesHPIntegration:
             self.agent.start()
             self._connected = True
             
-            # Check if HP agent is online
+            # Check if HP agent is online (look for "HP Tuners" in agent_id or capabilities)
             agents = self.agent.discover_agents()
-            hp_agents = [a for a in agents if "hp_tuners" in a.get("agent_id", "")]
+            hp_agents = [
+                a for a in agents 
+                if "hp tuners" in a.get("agent_id", "").lower() 
+                or "hp_tuners" in a.get("agent_id", "").lower()
+                or "tuning" in a.get("capabilities", [])
+            ]
             
             if hp_agents:
                 self.hp_agent_id = hp_agents[0]["agent_id"]
+                print(f"✅ Found HP agent: {self.hp_agent_id}")
                 return True
             else:
-                # HP agent not running, but we can still queue messages
+                print("⚠️ HP Tuners agent not found - is it running?")
+                print("   Run: python3 hp_tuners_ai_agent_agent.py run")
                 return True
                 
         except Exception as e:
@@ -109,6 +116,9 @@ class HermesHPIntegration:
         """
         if not self._ensure_connected():
             return {"error": "Not connected to agent system"}
+        
+        if not self.hp_agent_id:
+            return {"error": "HP Tuners agent not discovered. Run 'python3 hp_tuners_ai_agent_agent.py run' first"}
         
         params = params or {}
         
