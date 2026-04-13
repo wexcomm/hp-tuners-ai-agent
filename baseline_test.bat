@@ -12,7 +12,7 @@ cd /d "%~dp0"
 echo.
 echo [TEST 1] Python Environment
 echo ------------------------------------------------------------
-python --version
+python --version 2>&1
 echo.
 
 echo [TEST 2] Import Core Modules
@@ -32,18 +32,14 @@ echo ------------------------------------------------------------
 python -c "from skills.hpt_converter import ChecksumValidator; v=ChecksumValidator('GM_E37'); print('Validator: OK')" 2>&1
 echo.
 
-echo [TEST 5] HPT Builder (Critical - may show duplicate method issue)
+echo [TEST 5] HPT Builder
 echo ------------------------------------------------------------
 python -c "from skills.hpt_converter import HPTBuilder; b=HPTBuilder('GM_E37', 'TEST'); print('Builder: OK')" 2>&1
 echo.
 
 echo [TEST 6] File Conversions
 echo ------------------------------------------------------------
-python -c "
-from skills.hpt_converter import HPTConverter
-c = HPTConverter()
-print('Platforms:', c.get_supported_platforms())
-" 2>&1
+python -c "from skills.hpt_converter import HPTConverter; c = HPTConverter(); print('Platforms:', c.get_supported_platforms())" 2>&1
 echo.
 
 echo ============================================================
