@@ -1,0 +1,9 @@
+# HPT Converter Skill Dependencies
+# These are in addition to base project requirements
+
+# Core dependencies (already in project)
+# - No additional required dependencies
+
+# Optional dependencies for enhanced functionality
+# pyelftools>=0.29  # For ELF binary analysis if needed
+# capstone>=4.0.2   # For disassembly capabilities

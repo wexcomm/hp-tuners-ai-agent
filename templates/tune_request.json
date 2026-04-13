@@ -1,0 +1,8 @@
+{
+  "_comment": "HP Tuners AI Agent - Tune Request Template",
+  "vin": "2G1WB5E37D1157819",
+  "octane": 93,
+  "mods": ["intake", "exhaust"],
+  "type": "stage1",
+  "notes": "Optional tuning notes here"
+}

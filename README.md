@@ -1,6 +1,42 @@
-# HP Tuners AI Agent 🤖🔧
+# HP Tuners AI Agent v2.0 🤖🔧
 
 A comprehensive Python-based AI agent for ECU tuning, transmission tuning, data logging, and vehicle diagnostics using HP Tuners and OBD-II protocols.
+
+## ✨ What's New in v2.0
+
+### 📝 Native HP Tuners Integration
+- **HPT File Export**: Generate native `.hpt.json` files compatible with VCM Editor
+- **VCM Scanner Import**: Parse and analyze CSV logs exported from VCM Scanner
+- **Table Templates**: Pre-built tuning tables for Stage 1, bolt-ons, and more
+- **Tune Comparison**: Diff tool to compare two calibrations
+
+### 🔄 HPT Converter Skill (NEW!)
+- **Extract Binary**: Convert .hpt → .bin for use with other tools
+- **Create HPT**: Convert .bin → .hpt to import external calibrations
+- **Binary Analysis**: Compare tunes at byte level
+- **Batch Processing**: Convert entire folders at once
+- **Cross-Platform**: Works with TunerCat and other tuning software
+
+### 🔌 J2534 PassThru Skill (NEW!)
+- **Direct Flashing**: Flash .bin files directly to ECU (no HP Tuners needed!)
+- **Read ECU Memory**: Backup stock tune directly from ECU
+- **Real-Time Logging**: High-speed data logging (100+ PIDs/sec)
+- **Device Support**: TOPDON RLink X3 ✅, Tactrix OpenPort, DrewTech, Ford VCI, and more
+- **See**: `J2534_DEVICE_SETUP.md` for your specific device configuration
+
+### 📊 Comprehensive PID Database
+- **200+ PIDs**: Standard OBD-II + GM Mode 22 extended parameters
+- **LFX V6 Specific**: Individual cylinder knock, HPFP, VVT monitoring
+- **Logging Presets**: Pre-configured PID sets for different scenarios
+- **Smart Recommendations**: AI-powered tuning suggestions from log analysis
+
+### 🔧 Enhanced Tuning Workflows
+- **One-Click Stage 1**: Generate complete tunes for common modifications
+- **Safety Validation**: Automatic checks before exporting
+- **MAF/VE Generators**: Auto-scale for different intake configurations
+- **Transmission Tables**: Shift points and line pressure optimization
+
+---
 
 ## 🎯 Features
 
@@ -10,7 +46,12 @@ A comprehensive Python-based AI agent for ECU tuning, transmission tuning, data 
 - **Vehicle-Specific Support**: LFX 3.6L V6 (2013 Chevrolet Impala) with Direct Injection monitoring
 - **Safety Validation**: Pre-flash safety checks and post-tune verification
 - **Wideband O2 Integration**: Support for external wideband sensors
-- **HP Tuners Export**: Compatible tune file generation
+- **HP Tuners Export**: Native .HPT file generation for VCM Editor
+- **HPT Converter**: Convert between .hpt/.bin/.hex/.json formats (see skills/hpt_converter/)
+- **Checksum Validator**: Verify and fix ECM calibration checksums
+- **J2534 PassThru**: Direct ECU flashing with PassThru devices (see skills/j2534_passthru/)
+
+---
 
 ## 🚗 Supported Vehicles
 
@@ -20,12 +61,16 @@ A comprehensive Python-based AI agent for ECU tuning, transmission tuning, data 
   - High compression (12:1) knock analysis
   - Dual VVT tracking
   - 6T70 FWD transmission tuning
+- **LS3/L99 6.2L V8**: Camaro SS, Corvette, G8 GXP
+- **L83/L86 5.3L/6.2L**: Silverado, Sierra, Tahoe
 
 ### Transmissions
+- 6T70/6T75 (FWD 6-speed)
 - 6L80/6L90 (RWD 6-speed)
-- 6T70 (FWD 6-speed)
 - 8L90 (8-speed)
 - 10L80 (10-speed)
+
+---
 
 ## 📦 Installation
 
@@ -39,24 +84,16 @@ A comprehensive Python-based AI agent for ECU tuning, transmission tuning, data 
 pip install -r requirements.txt
 ```
 
-### System Setup (Linux)
-```bash
-# For Bluetooth OBD-II adapters
-sudo apt-get install bluetooth bluez
-
-# USB serial permissions
-sudo usermod -a -G dialout $USER
-```
+---
 
 ## 🚀 Quick Start
 
 ### Basic Usage
 ```python
-from src.hp_tuners_agent import HPTunersAgent
-from src.lfx_impala_controller import LFXImpalaController
+from src.enhanced_agent import EnhancedHPTunersAgent
 
-# Connect to vehicle via Bluetooth OBD-II
-agent = HPTunersAgent(port="/dev/rfcomm0")  # Bluetooth
+# Connect to vehicle
+agent = EnhancedHPTunersAgent(port="/dev/rfcomm0")  # Bluetooth
 agent.initialize()
 
 # Read ECU information
@@ -66,108 +103,215 @@ print(f"Calibration: {info.calibration_id}")
 
 # Backup stock tune
 agent.backup_stock_tune()
-
-# Log baseline data
-print("Drive normally for 10 minutes including WOT...")
-agent.log_baseline(duration=600)
 ```
 
-### LFX Impala Specific
+### Create Stage 1 Tune (Intake + Exhaust)
 ```python
-# Add LFX-specific monitoring
-lfx = LFXImpalaController(agent.ecu)
+from src.enhanced_agent import quick_stage1_tune
 
-# Check maintenance items for your mileage
-maintenance = lfx.check_maintenance_items(mileage=85000)
-for item in maintenance:
-    print(item)
-
-# Get LFX-specific PIDs
-pids = lfx.get_lfx_logging_pids()  # Includes HPFP, knock, VVT
-
-# Log with LFX monitoring
-log_data = agent.ecu.start_data_logging(pids, duration=600)
-
-# Analyze LFX-specific parameters
-fuel_analysis = lfx.analyze_lfx_fuel_system(log_data)
-knock_analysis = lfx.analyze_lfx_knock(log_data)  # All 6 cylinders
-vvt_analysis = lfx.analyze_vvt_operation(log_data)
-
-# Generate Stage 1 tune (93 octane required for LFX)
-tune = lfx.generate_stage1_lfx_tune(octane_rating=93)
-
-# Export for HP Tuners Editor
-agent.validate_and_export(tune, "lfx_stage1_93oct.json")
+# Generate without vehicle connection
+tune_path = quick_stage1_tune(
+    vin="2G1WB5E37D1157819",
+    octane=93,
+    output_dir="./tunes"
+)
+print(f"Tune exported to: {tune_path}")
 ```
+
+### Analyze VCM Scanner Log
+```python
+from src.enhanced_agent import analyze_log_file
+
+# Analyze HP Tuners VCM Scanner CSV export
+results = analyze_log_file("./logs/wot_pull.csv")
+
+print("Summary:")
+print(f"  WOT Events: {results['summary']['wot_events']}")
+print(f"  Knock Events: {results['summary']['knock_analysis']['total_events']}")
+
+print("\nRecommendations:")
+for rec in results['recommendations']:
+    print(f"  [{rec['priority']}] {rec['category']}: {rec['action']}")
+```
+
+---
 
 ## 📊 Data Logging
 
-### Essential PIDs
-- **RPM**: Engine speed
-- **SPEED**: Vehicle speed
-- **MAF**: Mass airflow
-- **O2_B1S1/B2S1**: Oxygen sensors
-- **SHORT/LONG_FUEL_TRIM**: Fuel trim data
-- **SPARK_ADV**: Spark advance
-- **KNOCK**: Knock retard
+### Using PID Presets
+```python
+# Log with predefined PID sets
+agent.log_with_preset("baseline", duration=600)      # Essential PIDs
+agent.log_with_preset("performance", duration=300)   # Full performance
+agent.log_with_preset("lfx_full", duration=600)      # Complete LFX monitoring
+```
 
-### LFX-Specific PIDs
-- **HPFP_PRESSURE**: High Pressure Fuel Pump (critical for direct injection)
-- **INJECTOR_DUTY**: Fuel injector duty cycle
-- **CYLINDER_HEAD_TEMP**: CHT monitoring
-- **KNOCK_RETARD_CYL1-6**: Individual cylinder knock
-- **VVT_INTAKE/EXHAUST**: Cam position tracking
-- **FUEL_TRIM_CELL**: GM-specific fuel trim cells
+### PID Presets Available
+| Preset | Description | PIDs | Rate |
+|--------|-------------|------|------|
+| `baseline` | Essential baseline | 14 | 0.5s |
+| `performance` | Performance tuning | 17 | 0.1s |
+| `lfx_full` | Complete LFX V6 | 33 | 0.1s |
+| `transmission` | Trans diagnostics | 13 | 0.2s |
+
+### Custom PID List
+```python
+from src.pid_database import PIDDatabase
+
+db = PIDDatabase()
+
+# Search for PIDs
+knock_pids = db.search("knock")
+for pid in knock_pids:
+    print(f"{pid.short_name}: {pid.name} ({pid.unit})")
+
+# Get LFX-specific list
+lfx_pids = db.get_lfx_logging_pids()
+print(f"Total LFX PIDs: {len(lfx_pids)}")
+```
+
+---
 
 ## 🔧 Tuning Workflows
 
-### Stage 1: Bolt-Ons (Intake/Exhaust)
+### Complete Stage 1 Workflow
 ```python
-# Generate tune for intake + exhaust modifications
-tune = lfx.generate_stage1_lfx_tune(octane_rating=93)
+from src.enhanced_agent import EnhancedHPTunersAgent
 
-# Expected gains: +10-15 HP
-# - MAF scaling +8-12%
-# - Spark advance +3-4° (93 octane only)
-# - Shift points +400 RPM
-# - Line pressure 85→90 PSI
+agent = EnhancedHPTunersAgent()
+agent.initialize()
+
+# 1. Backup stock tune
+agent.backup_stock_tune()
+
+# 2. Log baseline (WOT pulls, daily driving)
+agent.log_with_preset("lfx_full", duration=600, 
+                      output="./logs/baseline.csv")
+
+# 3. Create Stage 1 tune
+hpt = agent.create_stage1_tune_package(
+    octane=93,
+    mods=["intake", "exhaust"]
+)
+
+# 4. Export in multiple formats
+exported = agent.export_tune("./tunes/stage1", format="all")
+# Generates: .hpt.json, .csv tables, tuning report
+
+# 5. Flash with HP Tuners Editor, then re-log
+# 6. Validate results
+results = agent.import_vcm_scanner_log("./logs/stage1_verification.csv")
 ```
 
-### Safety Validation
+### Table Template Generator
 ```python
-from src.safety_validator import SafetyValidator
+from src.table_templates import (
+    SparkTableGenerator, FuelTableGenerator,
+    MAFCalibrationGenerator, TransmissionTableGenerator
+)
 
-validator = SafetyValidator()
-result = validator.validate_flash(tune, ecu_info, backups_dir)
+# Generate spark table for 93 octane
+spark = SparkTableGenerator.generate_main_spark_table(
+    base_curve="gm_lfx_stock",
+    octane_rating=93
+)
 
-if not result["safe_to_flash"]:
-    print("Safety issues:")
-    for warning in result["recommendations"]:
-        print(f"  ⚠️ {warning}")
+# Generate MAF for cold air intake
+maf = MAFCalibrationGenerator.generate_maf_calibration(
+    tube_diameter_mm=90,
+    calibration_type="intake_modified"
+)
+
+# Generate performance shift points
+shifts = TransmissionTableGenerator.generate_shift_table(
+    trans_type="6t70",
+    style="sport",
+    rpm_increase=400
+)
 ```
+
+---
 
 ## 🛡️ Safety Features
 
-### Pre-Flash Checklist
+### Pre-Flash Validation
+```python
+from src.enhanced_agent import EnhancedHPTunersAgent
+
+agent = EnhancedHPTunersAgent()
+agent.initialize()
+
+# Create tune
+hpt = agent.create_stage1_tune_package(octane=93)
+
+# Validate against logged data
+validation = agent.validate_against_logs(
+    hpt, 
+    log_file="./logs/verification.csv"
+)
+
+if not validation["valid"]:
+    print("Issues found:")
+    for issue in validation["issues"]:
+        print(f"  ⚠️ {issue}")
+```
+
+### Automatic Safety Checks
 - ✅ Stock tune backup verification
-- ✅ Fuel system capacity check (injector duty <85%)
-- ✅ Spark advance limits verification
+- ✅ Fuel system capacity (injector duty <85%)
+- ✅ Spark advance limits (max 45°)
+- ✅ Rev limiter safety (< 7500 RPM)
 - ✅ HPFP pressure monitoring (DI engines)
 - ✅ Knock sensor validation
-- ✅ Rev limiter safety
 
-### LFX-Specific Warnings
-- ⚠️ **93 Octane Required**: 12:1 compression, no timing advance on 87
-- ⚠️ **HPFP Monitoring**: $800+ part if overworked
-- ⚠️ **Carbon Buildup**: Check at 60k+ miles (DI engines)
-- ⚠️ **VVT Tracking**: Clogged solenoid screens common
-- ⚠️ **6T70 Limit**: 350 lb-ft max input torque
+---
+
+## 📁 File Formats
+
+### HPT JSON Export
+```json
+{
+  "Metadata": {
+    "CreatedBy": "HP Tuners AI Agent",
+    "Version": "1.0",
+    "Date": "2026-04-11T12:00:00",
+    "Platform": "GM_E37"
+  },
+  "Vehicle": {
+    "VIN": "2G1WB5E37D1157819",
+    "CalibrationID": "12653917"
+  },
+  "Tables": {
+    "Spark Advance 93oct": {
+      "TableName": "Spark Advance 93oct",
+      "Category": "Engine - Spark",
+      "RowAxis": {"Values": [800, 1000, ...], "Units": "RPM"},
+      "ColAxis": {"Values": [20, 40, ...], "Units": "%"},
+      "Data": [[18.0, 22.0, ...], ...],
+      "Units": "Degrees"
+    }
+  }
+}
+```
+
+### CSV Table Export
+Each table exports as CSV for easy import to HP Tuners Editor:
+```csv
+Engine Load\Engine Speed,800,1000,1500,...
+20,18.0,22.0,26.0,...
+40,16.0,20.0,24.0,...
+```
+
+---
 
 ## 📖 Documentation
 
-- [LFX Tuning Guide](docs/references/lfx_tuning_guide.md) - Comprehensive LFX tuning manual
-- [HP Tuners Tables](docs/references/hp_tuners_tables.md) - Table reference guide
-- [Skill Documentation](docs/SKILL.md) - Full capability documentation
+- [PID Database](docs/references/pid_database.md) - Complete PID reference
+- [Table Templates](docs/references/table_templates.md) - Tuning table guide
+- [LFX Tuning Guide](docs/references/lfx_tuning_guide.md) - LFX 3.6L specific
+- [HP Tuners Tables](docs/references/hp_tuners_tables.md) - Table reference
+
+---
 
 ## 🔌 Hardware Requirements
 
@@ -178,29 +322,33 @@ if not result["safe_to_flash"]:
 
 ### HP Tuners Interface
 - **MPVI2**: Required for ECU flashing
-- **Pro Feature Set**: Needed for some advanced logging
+- **Pro Feature Set**: Needed for advanced logging (Mode 22 PIDs)
+
+---
 
 ## 🧪 Testing
 
-Run tests:
 ```bash
+# Run all tests
 pytest tests/
+
+# Test specific module
+pytest tests/test_pid_database.py
+pytest tests/test_table_templates.py
 ```
+
+---
 
 ## 🤝 Contributing
 
-Contributions welcome! Please ensure:
-- Code follows PEP 8
-- Include tests for new features
-- Update documentation
-- Test on actual vehicle before submitting
-
-### Areas for Contribution
+Contributions welcome! Areas for contribution:
 - Additional vehicle platforms (Ford, Mopar, etc.)
 - More transmission support (10-speed, dual-clutch)
 - Enhanced data analysis algorithms
 - GUI/web interface
 - Mobile app integration
+
+---
 
 ## ⚠️ Disclaimer
 
@@ -218,16 +366,13 @@ Contributions welcome! Please ensure:
 - Follow manufacturer guidelines and local laws
 - **LFX engines are interference design - valve-to-piston contact possible if timing wrong**
 
+---
+
 ## 📄 License
 
 MIT License - See [LICENSE](LICENSE) for details.
 
-## 🙏 Acknowledgments
-
-- HP Tuners for the VCM Suite software
-- python-obd library contributors
-- EFI University for tuning education resources
-- GM LFX community for platform knowledge
+---
 
 ## 📞 Support
 
