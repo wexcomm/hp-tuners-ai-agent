@@ -1,0 +1,11 @@
+# Agent Bridge Dependencies
+# Add these to your main requirements.txt or install separately:
+
+# File-based messaging (no external deps needed)
+# Uses only Python stdlib: json, pathlib, threading, time, etc.
+
+# Optional: For network bridging between machines
+# redis>=5.0.0  # If using Redis backend instead of files
+
+# Install agent-bridge from sibling directory
+# Or copy agent_bridge.py to your project
