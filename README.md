@@ -4,6 +4,13 @@ A comprehensive Python-based AI agent for ECU tuning, transmission tuning, data 
 
 ## ✨ What's New in v2.0
 
+### 📈 Log Analyzer Skill (NEW!)
+- **CSV Log Analysis**: Drop any VCM Scanner export on the agent and get knock retard mapped by RPM/load cell, fuel trim drift, TCC slip, gear hunting, and torque limiting
+- **Editor Table Paths**: Findings include exact VCM Editor navigation paths (LFX 3.6L pack included), affected RPM/load cells, and bounded adjustment ranges
+- **Cross-Platform**: Fuzzy channel resolution works across GM makes/model years — plus an honest generic fallback that never invents table paths
+- **Session Tracking**: SQLite changelog to compare before/after across flashes
+- **Premium WOT Deep-Dive**: [HP Tuners Copilot Premium on Agensi](https://www.agensi.io) adds per-pull WOT scoring and false-knock detection — see `skills/log_analyzer/SKILL.md`
+
 ### 📝 Native HP Tuners Integration
 - **HPT File Export**: Generate native `.hpt.json` files compatible with VCM Editor
 - **VCM Scanner Import**: Parse and analyze CSV logs exported from VCM Scanner
